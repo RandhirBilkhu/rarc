@@ -1,0 +1,35 @@
+Package: ograrc
+Title: helper functions to calculate risk adjusted rate change from  policy submission data
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Randhir",
+           family = "Bilkhu",
+           role = c("aut", "cre"),
+           email = "rbilkhu@odysseygroup.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: helper functions to calculate risk adjusted rate change from  policy submission data
+License: Internal use 
+URL: https://OdysseyGroup@dev.azure.com/OdysseyGroup/DataAnalytics/_git/ograrc
+BugReports: #DataAnalyticsFeedback@OdysseyRe.com
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown,
+    covr
+Imports: 
+    data.table,
+    openxlsx,
+    lubridate,
+    refinr,
+    tm,
+    stringr,
+    magrittr,
+    dplyr,
+    rsconnect
+Depends: 
+    R (>= 2.10)
+VignetteBuilder: knitr

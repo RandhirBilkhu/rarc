@@ -1,0 +1,20 @@
+---
+title: "Validating_RARC"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Validating_RARC}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo =FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+htmltools::includeHTML("Validating MIFS RARC Calculation.html")
+```

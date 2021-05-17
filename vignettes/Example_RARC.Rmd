@@ -1,0 +1,20 @@
+---
+title: Example Real RARC Calculation
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example_RARC}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo =FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+htmltools::includeHTML("BCIM-RARC-Results.html")
+```
