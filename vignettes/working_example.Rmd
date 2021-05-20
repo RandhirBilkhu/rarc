@@ -1,5 +1,5 @@
 ---
-title: "RARC Example"
+title: "Walkthrough Example"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{working_example}
@@ -23,10 +23,10 @@ library(DT)
 ```
 
 
-The example below shows a subset of a cedant's data where there are two insureds, "berlin" and "frankfurt" which have been written in 2019 and renewed in 2020. The names vary slightly from year to year.
+The example below shows a subset of a cedant's data where there are two insureds, "berlin" and "frankfurt" which have been written in 2019 and renewed in 2020. The names vary slightly from year to year. We can use one of the pre-processing functions `standardise_names` to create a key from insured names which can be used to link renewals.
 
 ```{r}
-library(datools)
+library(ograrc)
 
 example <- data.table::data.table(
               insured = c("berlin", "frankfurt" , "berlin, inc", "frankfurt inc") , 
@@ -41,7 +41,7 @@ example <- data.table::data.table(
 
 
 ```{r warning=FALSE}
-kable(example)
+kableExtra::kable(example)
 ```
 
 
@@ -62,6 +62,7 @@ Next we can preprocess the data and add additional features required for calcula
 
 - adding a feature for QY in the form YYYYQQ
 - standardising the names and creating a field `std_Insured_name` to generate a key which can be used to link renewals.
+- Note : an alternative would be to use a repeating part of policy_ids to also generate a key
 
 
 ### Adjusting For Limit/Attachment changes
@@ -77,7 +78,7 @@ example <- calc_lev(example, Limit , attach , k=1 , mu =15.2, sigma=1.74)
 ```
 
 ```{r warning=FALSE, include=FALSE}
-kable(example)
+kableExtra::kable(example)
 ```
 
 
@@ -89,12 +90,12 @@ Now we can call `tidy_rarc` function to calculate rate change and return a long 
 library(data.table)
 example_rarc <- tidy_rarc(example, premium_type = "premium", col_key = c("insured", "industry"))
 
-kable(example_rarc)
+kableExtra::kable(example_rarc)
 ```
 
 ### Summarise RARC by qtr and industry
 
-It is now easy to summarise the detailed output by whatever segmentation is required - show below by policy period
+It is now easy to summarise the detailed output by whatever segmentation is required - shown below by policy period
 
 
 ```{r warning=FALSE}
@@ -102,8 +103,7 @@ output <-example_rarc[ , .(Policy_Count = .N , Premium = sum(Premium), `OG Wtd R
                                                 mean_RARC_all = mean(RARC) -1,
                                                 sd_err_rarc =sd(RARC)/sqrt(.N)), by= .(Policy_Period, industry) ][
                                                     order(Policy_Period, industry)][Policy_Period=="2020Q1"]
-
-kable(output)
+kableExtra::kable(output)
 ```
 
 

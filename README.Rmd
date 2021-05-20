@@ -8,37 +8,143 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "./man/figures/datools.png",
+  fig.path = "./man/figures/logo.png",
   out.width = "100%"
 )
 ```
 
-# datools <img src='man/figures/datools.png' align="right" height="139" />
+# ograrc <img src='man/figures/logo.png' align="right" height="139" />
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-datools is an internal R package developed by Data Analytics team at Odyssey Re in order to house functions/tools which may be useful for actuaries.
+ograrc is an internal R package developed by Data Analytics team at Odyssey Re in order to house functions/tools which may be useful for actuaries when calculating rarc from submission data.
 
 ## Installation
 
 ``` r
-install.packages("datools") ### TBD currently only installable via remote repo
+install.packages("ograrc") ### TBD currently only installable via remote repo
 
-remotes::install_git("https://OdysseyGroup@dev.azure.com/OdysseyGroup/DataAnalytics/_git/DATools.git",
+remotes::install_git("https://OdysseyGroup@dev.azure.com/OdysseyGroup/DataAnalytics/_git/ograrc",
                      credentials=git2r::cred_user_pass("user", "password"))
 
 
 ```
 
-### RARC
+### Goals
 
-a set of functions to help calculate Risk Adjusted Rate change at underlying policy level from submission data.
+ograrc provides a set of functions to help calculate Risk Adjusted Rate change at underlying policy level from submission data.
 
 
-### TBD
+### High level process/requirements
 
+
+- minimum fields: premium, inception date, limit, attachment, insured names/policy id (to create a key)
+- dataset should be structured and tabular ( does not require to be column conformed)
+- should have at least some renewals
+
+
+### Walkthrough Example 
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In this example, an example data set is used to walk through a calculation of rate change for illustration.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+library(kableExtra)
+library(DT)
+```
+
+
+The example below shows a subset of a cedant's data where there are two insureds, "berlin" and "frankfurt" which have been written in 2019 and renewed in 2020. The names vary slightly from year to year. We can use one of the pre-processing functions `standardise_names` to create a key from insured names which can be used to link renewals.
+
+```{r}
+library(ograrc)
+
+example <- data.table::data.table(
+              insured = c("berlin", "frankfurt" , "berlin, inc", "frankfurt inc") , 
+              inception = c("01/01/2019" , "01/06/2019" , "01/01/2020", "01/06/2020"),   
+              premium = c(100,120,110,100),
+              Limit = c(1000, 500, 1000,400),
+              attach = c(100,100,50,50),
+              industry = c("retail" , "pharma" , "retail" , "pharma")
+              
+              )
+```
+
+
+```{r warning=FALSE}
+kableExtra::kable(example)
+```
+
+
+### Simple Data Cleansing
+
+We can call `convert_data_type` to convert fields to correct data types for R.
+
+```{r warning=FALSE}
+str(example)
+example <- convert_data_type(example, num_cols = c("premium" , "Limit", "attach"), date_cols = "inception" , factor_cols = "industry" )
+
+str(example)
+```
+
+### Additional Pre-processing
+
+Next we can preprocess the data and add additional features required for calculating RARC by policy quarter. This includes:
+
+- adding a feature for QY in the form YYYYQQ
+- standardising the names and creating a field `std_Insured_name` to generate a key which can be used to link renewals.
+- Note : an alternative would be to use a repeating part of policy_ids to also generate a key
+
+
+### Adjusting For Limit/Attachment changes
+
+Lastly we require a feature for LEV ( Limited Expected Value) which will be used to adjust rate changes for changes in limit and attachment point. The LEV is calculated via a lognormal curve with parameters mu and sigma. K signifies the moment of the distribution.
+
+```{r warning=FALSE}
+example[, policy_year := lubridate::year(`conform  inception`) ]
+example <- add_qy(example , policy_year, `conform  inception` , add_miss= TRUE)
+
+example <- standardise_names(example , name_col = "insured" , clean_patt = "inc")
+example <- calc_lev(example, Limit , attach , k=1 , mu =15.2, sigma=1.74)
+```
+
+```{r warning=FALSE, include=FALSE}
+kableExtra::kable(example)
+```
+
+
+### Calculate RARC
+
+Now we can call `tidy_rarc` function to calculate rate change and return a long form dataset of results
+ 
+```{r warning=FALSE}
+library(data.table)
+example_rarc <- tidy_rarc(example, premium_type = "premium", col_key = c("insured", "industry"))
+
+kableExtra::kable(example_rarc)
+```
+
+### Summarise RARC by qtr and industry
+
+It is now easy to summarise the detailed output by whatever segmentation is required - shown below by policy period
+
+
+```{r warning=FALSE}
+output <-example_rarc[ , .(Policy_Count = .N , Premium = sum(Premium), `OG Wtd RARC` = sum(Restated_Expiry_Wt)/sum(Restated_Expiry) ,
+                                                mean_RARC_all = mean(RARC) -1,
+                                                sd_err_rarc =sd(RARC)/sqrt(.N)), by= .(Policy_Period, industry) ][
+                                                    order(Policy_Period, industry)][Policy_Period=="2020Q1"]
+kableExtra::kable(output)
+```
 
 
 
