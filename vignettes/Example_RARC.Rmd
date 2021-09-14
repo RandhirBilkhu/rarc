@@ -16,5 +16,5 @@ knitr::opts_chunk$set(
 
 ```{r setup, echo =FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-htmltools::includeHTML("BCIM-RARC-Results.html")
+#htmltools::includeHTML("BCIM-RARC-Results.html")
 ```

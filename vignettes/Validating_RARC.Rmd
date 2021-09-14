@@ -16,5 +16,5 @@ knitr::opts_chunk$set(
 
 ```{r setup, echo =FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-htmltools::includeHTML("Validating MIFS RARC Calculation.html")
+#htmltools::includeHTML("Validating MIFS RARC Calculation.html")
 ```
