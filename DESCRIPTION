@@ -9,7 +9,7 @@ Authors@R:
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: helper functions to calculate risk adjusted rate change from  policy submission data.
 License: Internal use 
-URL: https://OdysseyGroup@dev.azure.com/OdysseyGroup/DataAnalytics/_git/ograrc
+URL: 
 BugReports: #DataAnalyticsFeedback@OdysseyRe.com
 Encoding: UTF-8
 LazyData: true
