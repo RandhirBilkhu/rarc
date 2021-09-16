@@ -18,8 +18,7 @@ actuaries when calculating rarc from submission data.
 ``` r
 install.packages("ograrc") ### TBD currently only installable via remote repo
 
-remotes::install_git("https://OdysseyGroup@dev.azure.com/OdysseyGroup/DataAnalytics/_git/ograrc",
-                     credentials=git2r::cred_user_pass("user", "password"))
+
 
 ```
 
